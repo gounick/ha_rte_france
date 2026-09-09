@@ -1,0 +1,24 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+- Initial release of the RTE France custom integration.
+- OAuth2 client-credentials authentication for the RTE Data API.
+- Generic `fetch_data` service to query any RTE Data API endpoint.
+- Sensors for Market, Production, Generation Forecast, Consumption and Exchanges categories.
+- HACS validation workflow and `hacs.json`.
+- MIT `LICENSE` file.
+- `FUNDING.yaml` file.
+- `integration_type` set to `service` in `manifest.json`.
+- GitHub Actions release workflows that update `CHANGELOG.md` and `manifest.json` on release (manual or automatic).
+
+### Changed
+
+- Improved `README.md` with HACS badge, installation instructions, supported sensors table and service documentation.

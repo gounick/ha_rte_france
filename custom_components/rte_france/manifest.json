@@ -1,0 +1,13 @@
+{
+  "domain": "rte_france",
+  "name": "RTE France",
+  "codeowners": ["@gounick"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/gounick/ha_rte_france",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/gounick/ha_rte_france/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

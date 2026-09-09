@@ -1,0 +1,19 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "client_id": "Client ID",
+          "client_secret": "Client Secret"
+        },
+        "description": "Enter your RTE Data API credentials. Create them and subscribe to the required APIs at https://data.rte-france.com.",
+        "title": "RTE France"
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to RTE API. Check your credentials and subscriptions.",
+      "invalid_auth": "Invalid RTE API credentials.",
+      "unknown": "Unexpected error."
+    }
+  }
+}

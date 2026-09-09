@@ -1,0 +1,21 @@
+fetch_data:
+  name: Fetch RTE Data
+  description: Query any RTE Data API endpoint and return the raw response.
+  fields:
+    endpoint:
+      name: Endpoint
+      description: RTE Data API endpoint path after /open_api/, e.g. wholesale_market/v3/france_power_exchanges.
+      required: true
+      example: wholesale_market/v3/france_power_exchanges
+      selector:
+        text:
+    params:
+      name: Query Parameters
+      description: Optional query parameters for the endpoint.
+      required: false
+      example:
+        start_date: "2024-01-01T00:00:00+00:00"
+        end_date: "2024-01-02T23:59:59+00:00"
+      selector:
+        object:
+  response_variable: data
