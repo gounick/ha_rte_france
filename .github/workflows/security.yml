@@ -38,9 +38,8 @@ jobs:
           fetch-depth: 0
       - name: Install Kingfisher
         run: |
-          curl --silent --location \
-            https://raw.githubusercontent.com/mongodb/kingfisher/main/scripts/install-kingfisher.sh | \
-            bash
+          INSTALLER="https://raw.githubusercontent.com/mongodb/kingfisher/main/scripts/install-kingfisher.sh"
+          curl --silent --location "${INSTALLER}" | bash
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Run Kingfisher
         run: |
