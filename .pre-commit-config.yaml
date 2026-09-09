@@ -7,3 +7,8 @@ repos:
         args:
           - --fix
       - id: ruff-format
+  - repo: https://github.com/mongodb/kingfisher
+    rev: v2.0.0
+    hooks:
+      - id: kingfisher-auto
+        stages: [pre-commit]

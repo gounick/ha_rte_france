@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FUNDING.yaml` file.
 - `integration_type` set to `service` in `manifest.json`.
 - GitHub Actions release workflows that update `CHANGELOG.md` and `manifest.json` on release (manual or automatic).
+- Security scanning workflows with Gitleaks and Kingfisher.
+- Kingfisher pre-commit hook.
+- Renovate configuration.
 
 ### Changed
 
