@@ -40,3 +40,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `async_setup_entry` now probes each API category during setup and only creates sensors for the endpoints the RTE application is allowed to access, preventing a single `403 Forbidden` from failing the whole integration.
 - The API probe now catches `ConfigEntryNotReady` (raised by `DataUpdateCoordinator.first_refresh`) for each endpoint instead of `UpdateFailed`.
 - `api.py` now uses UTC midnight boundaries for `start_date`/`end_date` and queries `physical_flows` without date filters, resolving `400 Bad Request` errors on accessible endpoints.
+- `parsers.py` is now defensive against missing `value`/`price`/`start_date` keys, which was crashing the `physical_flows` sensor.
+- `actual_generation` is now queried without date filters, matching the RTE API default and avoiding `400 Bad Request`.

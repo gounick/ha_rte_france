@@ -118,10 +118,6 @@ class RTEDataAPI:
                 ) from err
             return await resp.json()
 
-    def _now(self) -> datetime:
-        """Return the current UTC time without microseconds."""
-        return datetime.now(UTC).replace(microsecond=0)
-
     def _api_format(self, dt: datetime) -> str:
         """Return a datetime formatted for the RTE API."""
         return dt.isoformat()
@@ -154,14 +150,10 @@ class RTEDataAPI:
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        start = self._midnight(timedelta(days=-1))
-        end = self._midnight()
+        # This resource accepts optional date filters; omitting them returns
+        # the API's default window and avoids timezone/range validation errors.
         return await self.fetch(
-            "actual_generation/v1/actual_generations_per_production_type",
-            {
-                "start_date": self._api_format(start),
-                "end_date": self._api_format(end),
-            },
+            "actual_generation/v1/actual_generations_per_production_type"
         )
 
     async def fetch_generation_forecast(self) -> dict[str, Any]:

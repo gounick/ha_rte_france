@@ -9,15 +9,20 @@ import homeassistant.util.dt as dt_util
 _LOGGER = logging.getLogger(__name__)
 
 
-def _parse_iso(value: str) -> datetime:
+def _parse_iso(value: str | None) -> datetime | None:
     """Parse an ISO 8601 timestamp string.
 
-    :param value: ISO 8601 timestamp.
-    :type value: str
-    :return: Parsed datetime.
-    :rtype: datetime
+    :param value: ISO 8601 timestamp, or None.
+    :type value: str | None
+    :return: Parsed datetime, or None if the input is missing/invalid.
+    :rtype: datetime | None
     """
-    return datetime.fromisoformat(value)
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
 
 
 def _last_value(values: list[dict[str, Any]]) -> float | None:
@@ -32,8 +37,11 @@ def _last_value(values: list[dict[str, Any]]) -> float | None:
     now = dt_util.now()
     candidates = [
         float(item["value"])
-        for item in sorted(values, key=lambda x: x["start_date"])
-        if _parse_iso(item["start_date"]) <= now
+        for item in sorted(values, key=lambda x: x.get("start_date", ""))
+        if item.get("start_date")
+        and "value" in item
+        and (parsed := _parse_iso(item["start_date"]))
+        and parsed <= now
     ]
     return candidates[-1] if candidates else None
 
@@ -52,9 +60,11 @@ def market_current_price(data: dict[str, Any]) -> float | None:
     now = dt_util.now()
     for exchange in data.get("france_power_exchanges", []):
         for item in exchange.get("values", []):
-            start = _parse_iso(item["start_date"])
-            end = _parse_iso(item["end_date"])
-            if start <= now < end:
+            if "price" not in item:
+                continue
+            start = _parse_iso(item.get("start_date"))
+            end = _parse_iso(item.get("end_date"))
+            if start and end and start <= now < end:
                 return round(float(item["price"]), 2)
     return None
 
@@ -80,13 +90,15 @@ def generation_total(data: dict[str, Any]) -> float | None:
     # Group values by start_date and sum production types for the same interval.
     totals: dict[str, float] = {}
     for item in all_values:
+        if "value" not in item or not item.get("start_date"):
+            continue
         start = item["start_date"]
         totals[start] = totals.get(start, 0.0) + float(item["value"])
 
     sorted_totals = sorted(totals.items(), key=lambda x: x[0])
     now = dt_util.now()
     for start, value in reversed(sorted_totals):
-        if _parse_iso(start) <= now:
+        if (parsed := _parse_iso(start)) and parsed <= now:
             return round(value, 2)
     return None
 
@@ -146,12 +158,14 @@ def physical_flow_net(data: dict[str, Any]) -> float | None:
     # Sum flows by interval; a negative value means export.
     net: dict[str, float] = {}
     for item in values:
+        if "value" not in item or not item.get("start_date"):
+            continue
         start = item["start_date"]
         net[start] = net.get(start, 0.0) + float(item["value"])
 
     sorted_net = sorted(net.items(), key=lambda x: x[0])
     now = dt_util.now()
     for start, value in reversed(sorted_net):
-        if _parse_iso(start) <= now:
+        if (parsed := _parse_iso(start)) and parsed <= now:
             return round(value, 2)
     return None
