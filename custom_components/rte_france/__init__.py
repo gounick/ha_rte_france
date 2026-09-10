@@ -8,6 +8,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from .api import RTEDataAPI, RTEDataAPIError
 from .const import CONF_CLIENT_ID, CONF_CLIENT_SECRET, DOMAIN
@@ -40,41 +41,37 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except (RTEDataAPIError, aiohttp.ClientError) as err:
         raise ConfigEntryNotReady() from err
 
-    coordinators = {
-        "market": RTEDataUpdateCoordinator(
-            hass,
-            api,
-            "market",
-            api.fetch_france_power_exchanges,
-        ),
-        "generation": RTEDataUpdateCoordinator(
-            hass,
-            api,
-            "generation",
-            api.fetch_actual_generation,
-        ),
-        "generation_forecast": RTEDataUpdateCoordinator(
-            hass,
-            api,
-            "generation_forecast",
-            api.fetch_generation_forecast,
-        ),
-        "consumption": RTEDataUpdateCoordinator(
-            hass,
-            api,
-            "consumption",
-            api.fetch_consumption,
-        ),
-        "physical_flows": RTEDataUpdateCoordinator(
-            hass,
-            api,
-            "physical_flows",
-            api.fetch_physical_flows,
-        ),
+    coordinator_methods = {
+        "market": api.fetch_france_power_exchanges,
+        "generation": api.fetch_actual_generation,
+        "generation_forecast": api.fetch_generation_forecast,
+        "consumption": api.fetch_consumption,
+        "physical_flows": api.fetch_physical_flows,
     }
 
-    for coordinator in coordinators.values():
-        await coordinator.async_config_entry_first_refresh()
+    coordinators: dict[str, RTEDataUpdateCoordinator] = {}
+    for name, update_method in coordinator_methods.items():
+        coordinator = RTEDataUpdateCoordinator(hass, api, name, update_method)
+        try:
+            await coordinator.async_config_entry_first_refresh()
+        except UpdateFailed as err:
+            _LOGGER.warning(
+                "RTE France '%s' API is not available for this application: %s",
+                name,
+                err,
+            )
+            continue
+        coordinators[name] = coordinator
+
+    if not coordinators:
+        raise ConfigEntryNotReady(
+            "No RTE Data APIs are accessible for this application."
+        )
+
+    _LOGGER.info(
+        "RTE France enabled categories: %s",
+        ", ".join(sorted(coordinators)),
+    )
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "api": api,

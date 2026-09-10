@@ -132,7 +132,16 @@ class RTEDataAPI:
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        return await self.fetch("wholesale_market/v2/france_power_exchanges")
+        today = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+        start = today - timedelta(days=1)
+        end = today + timedelta(days=1)
+        return await self.fetch(
+            "wholesale_market/v2/france_power_exchanges",
+            {
+                "start_date": self._api_format(start),
+                "end_date": self._api_format(end),
+            },
+        )
 
     async def fetch_actual_generation(self) -> dict[str, Any]:
         """Fetch actual generation per production type.
