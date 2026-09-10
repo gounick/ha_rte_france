@@ -143,19 +143,24 @@ class RTEDataAPI:
             },
         )
 
+    def _midnight(self, offset: timedelta = timedelta()) -> datetime:
+        """Return a UTC midnight datetime with an optional offset."""
+        today = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+        return today + offset
+
     async def fetch_actual_generation(self) -> dict[str, Any]:
         """Fetch actual generation per production type.
 
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        now = self._now()
-        start = now - timedelta(days=1)
+        start = self._midnight(timedelta(days=-1))
+        end = self._midnight()
         return await self.fetch(
             "actual_generation/v1/actual_generations_per_production_type",
             {
                 "start_date": self._api_format(start),
-                "end_date": self._api_format(now),
+                "end_date": self._api_format(end),
             },
         )
 
@@ -165,12 +170,12 @@ class RTEDataAPI:
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        now = self._now()
-        end = now + timedelta(days=1)
+        start = self._midnight()
+        end = self._midnight(timedelta(days=1))
         return await self.fetch(
             "generation_forecast/v2/forecasts",
             {
-                "start_date": self._api_format(now),
+                "start_date": self._api_format(start),
                 "end_date": self._api_format(end),
             },
         )
@@ -181,13 +186,13 @@ class RTEDataAPI:
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        now = self._now()
-        start = now - timedelta(days=1)
+        start = self._midnight(timedelta(days=-1))
+        end = self._midnight()
         return await self.fetch(
             "consumption/v1/short_term",
             {
                 "start_date": self._api_format(start),
-                "end_date": self._api_format(now),
+                "end_date": self._api_format(end),
                 "type": "REALISED",
             },
         )
@@ -198,12 +203,6 @@ class RTEDataAPI:
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        now = self._now()
-        start = now - timedelta(days=1)
-        return await self.fetch(
-            "physical_flow/v1/physical_flows",
-            {
-                "start_date": self._api_format(start),
-                "end_date": self._api_format(now),
-            },
-        )
+        # The physical_flows resource can be queried without date filters;
+        # the API returns the default available window.
+        return await self.fetch("physical_flow/v1/physical_flows")
