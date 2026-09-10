@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - French UI translation (`translations/fr.json`).
 - Brand assets (`icon.png` / `logo.png`) for HACS under `custom_components/rte_france/brand/`.
 - HACS validation workflow and `hacs.json`.
+- hassfest validation workflow.
 - MIT `LICENSE` file.
 - `FUNDING.yaml` file.
 - `integration_type` set to `service` in `manifest.json`.

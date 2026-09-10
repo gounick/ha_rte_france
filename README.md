@@ -1,5 +1,6 @@
 # RTE France
 
+[![hassfest](https://github.com/gounick/ha_rte_france/actions/workflows/hassfest.yaml/badge.svg?branch=main)](https://github.com/gounick/ha_rte_france/actions/workflows/hassfest.yaml)
 [![HACS](https://github.com/gounick/ha_rte_france/actions/workflows/hacs.yml/badge.svg?branch=main)](https://github.com/gounick/ha_rte_france/actions/workflows/hacs.yml)
 [![Tests](https://github.com/gounick/ha_rte_france/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/gounick/ha_rte_france/actions/workflows/tests.yml)
 [![Security](https://github.com/gounick/ha_rte_france/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/gounick/ha_rte_france/actions/workflows/security.yml)
