@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generic `fetch_data` service to query any RTE Data API endpoint.
 - Sensors for Market, Production, Generation Forecast, Consumption and Exchanges categories.
 - French UI translation (`translations/fr.json`).
+- hassfest validation workflow.
 - Brand assets (`icon.png` / `logo.png`) for HACS under `custom_components/rte_france/brand/`.
 - HACS validation workflow and `hacs.json`.
 - hassfest validation workflow.

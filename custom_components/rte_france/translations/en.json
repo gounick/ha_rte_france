@@ -6,7 +6,7 @@
           "client_id": "Client ID",
           "client_secret": "Client Secret"
         },
-        "description": "Enter your RTE Data API credentials. Create them and subscribe to the required APIs at https://data.rte-france.com.",
+        "description": "Enter your RTE Data API credentials. Create them and subscribe to the required APIs on the RTE Data portal.",
         "title": "RTE France"
       }
     },

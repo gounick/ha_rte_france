@@ -6,7 +6,7 @@
           "client_id": "Identifiant client",
           "client_secret": "Clé secrète client"
         },
-        "description": "Saisissez vos identifiants d'API RTE Data. Créez-les et abonnez-vous aux API requises sur https://data.rte-france.com.",
+        "description": "Saisissez vos identifiants d'API RTE Data. Créez-les et abonnez-vous aux API requises sur le portail RTE Data.",
         "title": "RTE France"
       }
     },
