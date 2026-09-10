@@ -1,6 +1,11 @@
 # RTE France
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+[![HACS](https://github.com/gounick/ha_rte_france/actions/workflows/hacs.yml/badge.svg?branch=main)](https://github.com/gounick/ha_rte_france/actions/workflows/hacs.yml)
+[![Tests](https://github.com/gounick/ha_rte_france/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/gounick/ha_rte_france/actions/workflows/tests.yml)
+[![Security](https://github.com/gounick/ha_rte_france/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/gounick/ha_rte_france/actions/workflows/security.yml)
+[![Release checks](https://github.com/gounick/ha_rte_france/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/gounick/ha_rte_france/actions/workflows/release.yml)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+![Version](https://img.shields.io/github/v/release/gounick/ha_rte_france?style=plastic)
 
 Home Assistant custom integration for RTE France public electricity market data.
 
