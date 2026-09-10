@@ -1,0 +1,19 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "client_id": "Identifiant client",
+          "client_secret": "Clé secrète client"
+        },
+        "description": "Saisissez vos identifiants d'API RTE Data. Créez-les et abonnez-vous aux API requises sur https://data.rte-france.com.",
+        "title": "RTE France"
+      }
+    },
+    "error": {
+      "cannot_connect": "Échec de connexion à l'API RTE. Vérifiez vos identifiants et abonnements.",
+      "invalid_auth": "Identifiants d'API RTE invalides.",
+      "unknown": "Erreur inattendue."
+    }
+  }
+}
