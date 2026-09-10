@@ -10,8 +10,9 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import RTEDataAPI, RTEDataAPIError
-from .const import CONF_CLIENT_ID, CONF_CLIENT_SECRET, DOMAIN
+from .const import CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_ENABLED_ENDPOINTS, DOMAIN
 from .coordinator import RTEDataUpdateCoordinator
+from .endpoints import get_endpoint, list_endpoint_keys
 from .services import async_setup_services
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,27 +41,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except (RTEDataAPIError, aiohttp.ClientError) as err:
         raise ConfigEntryNotReady() from err
 
-    coordinator_methods = {
-        "market": api.fetch_france_power_exchanges,
-        "generation": api.fetch_actual_generation,
-        "generation_forecast": api.fetch_generation_forecast,
-        "consumption": api.fetch_consumption,
-        "physical_flows": api.fetch_physical_flows,
-    }
+    enabled_keys = entry.options.get(CONF_ENABLED_ENDPOINTS, list_endpoint_keys())
 
     coordinators: dict[str, RTEDataUpdateCoordinator] = {}
-    for name, update_method in coordinator_methods.items():
-        coordinator = RTEDataUpdateCoordinator(hass, api, name, update_method)
+    for key in enabled_keys:
+        endpoint = get_endpoint(key)
+        if endpoint is None:
+            _LOGGER.warning("Unknown RTE endpoint '%s' skipped", key)
+            continue
+
+        coordinator = RTEDataUpdateCoordinator(hass, api, endpoint)
         try:
             await coordinator.async_config_entry_first_refresh()
         except ConfigEntryNotReady as err:
             _LOGGER.warning(
                 "RTE France '%s' API is not available for this application: %s",
-                name,
+                key,
                 err,
             )
             continue
-        coordinators[name] = coordinator
+        coordinators[key] = coordinator
 
     if not coordinators:
         raise ConfigEntryNotReady(

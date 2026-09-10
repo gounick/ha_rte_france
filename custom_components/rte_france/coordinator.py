@@ -1,8 +1,7 @@
 """DataUpdateCoordinator for the RTE France integration."""
 
 import logging
-from collections.abc import Callable, Coroutine
-from datetime import timedelta
+from datetime import UTC, datetime
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -10,10 +9,9 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .api import RTEDataAPI
 from .const import DOMAIN
+from .endpoints import RTEEndpoint
 
 _LOGGER = logging.getLogger(__name__)
-
-DEFAULT_UPDATE_INTERVAL = timedelta(minutes=15)
 
 
 class RTEDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -23,30 +21,24 @@ class RTEDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     :type hass: HomeAssistant
     :param api: Initialized RTE Data API client.
     :type api: RTEDataAPI
-    :param name: Coordinator / sensor suffix.
-    :type name: str
-    :param update_method: Async callable returning parsed API data.
-    :type update_method: Callable[[], Coroutine[Any, Any, dict[str, Any]]]
-    :param update_interval: Optional override of the default polling interval.
-    :type update_interval: timedelta | None
+    :param endpoint: Descriptor for the RTE Data endpoint to poll.
+    :type endpoint: RTEEndpoint
     """
 
     def __init__(
         self,
         hass: HomeAssistant,
         api: RTEDataAPI,
-        name: str,
-        update_method: Callable[[], Coroutine[Any, Any, dict[str, Any]]],
-        update_interval: timedelta | None = None,
+        endpoint: RTEEndpoint,
     ) -> None:
         """Initialize the coordinator."""
         self.api = api
-        self._update_method = update_method
+        self.endpoint = endpoint
         super().__init__(
             hass,
             _LOGGER,
-            name=f"{DOMAIN}_{name}",
-            update_interval=update_interval or DEFAULT_UPDATE_INTERVAL,
+            name=f"{DOMAIN}_{endpoint.key}",
+            update_interval=endpoint.update_interval,
         )
 
     async def _async_update_data(self) -> dict[str, Any]:
@@ -55,4 +47,7 @@ class RTEDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         :return: Parsed API response.
         :rtype: dict[str, Any]
         """
-        return await self._update_method()
+        params = None
+        if self.endpoint.build_params:
+            params = self.endpoint.build_params(datetime.now(UTC))
+        return await self.api.fetch(self.endpoint.path, params)

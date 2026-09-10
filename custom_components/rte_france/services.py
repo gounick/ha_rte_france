@@ -12,7 +12,7 @@ from homeassistant.core import (
 )
 
 from .api import RTEDataAPI
-from .const import DOMAIN
+from .const import ATTR_DATA, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ SERVICE_FETCH_DATA = "fetch_data"
 SERVICE_FETCH_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(
-            "endpoint", default="wholesale_market/v3/france_power_exchanges"
+            "endpoint", default="wholesale_market/v2/france_power_exchanges"
         ): str,
         vol.Optional("params", default={}): dict,
     }
@@ -56,7 +56,7 @@ def async_setup_services(hass: HomeAssistant, api: RTEDataAPI) -> None:
         )
 
         data = await api.fetch(endpoint, params)
-        return {"data": data}
+        return {ATTR_DATA: data}
 
     hass.services.async_register(
         DOMAIN,

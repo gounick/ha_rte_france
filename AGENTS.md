@@ -44,6 +44,7 @@ This file provides guidance to compatible agentic tools when generating or revie
 1. Scan existing utilities under `custom_components/rte_france/`.
 2. Check for similar patterns in other Home Assistant integrations in this repo.
 3. Reuse before creating.
+4. If you need to add or change an API endpoint, read the endpoint and parser sections below first.
 
 ---
 
@@ -54,6 +55,7 @@ This file provides guidance to compatible agentic tools when generating or revie
 - No dead code, no commented-out blocks, no trailing whitespace.
 - Write Sphinx-format docstrings (`:param name:`, `:type name:`, `:return:`, `:rtype:`).
 - Never log secrets or credentials.
+- Always use Python 3 exception syntax: `except (ValueError, TypeError):`, not `except ValueError, TypeError:`.
 
 ---
 
@@ -65,20 +67,55 @@ custom_components/rte_france/
 ├── manifest.json     # Integration metadata
 ├── const.py          # Constants and config keys
 ├── config_flow.py    # UI configuration flow
+├── options_flow.py   # Options flow for enabling/disabling endpoints
 ├── api.py            # RTE Data REST + OAuth2 client
+├── endpoints.py      # Endpoint registry: paths, params, sensors, parsers
 ├── parsers.py        # Response parsing helpers per API category
-├── coordinator.py    # Generic DataUpdateCoordinator
-├── sensor.py         # Sensor platform
+├── coordinator.py    # Generic DataUpdateCoordinator driven by endpoints
+├── sensor.py         # Sensor platform generated from endpoint descriptors
 ├── services.py       # HA service handlers
 ├── services.yaml     # Service definitions
 └── translations/     # UI translations
+
+scripts/
+└── probe_rte.py      # Debug script to inspect live API responses
 ```
 
 - `RTEDataAPI` owns all HTTP calls and OAuth2 token management.
+- `endpoints.py` declares every RTE Data API resource once. Each endpoint knows
+  its path, default query parameters, refresh interval, and sensor definitions.
 - `parsers.py` extracts usable scalar values from the heterogeneous RTE responses.
-- `RTEDataUpdateCoordinator` refreshes each configured API category.
+- `RTEDataUpdateCoordinator` refreshes one configured endpoint.
 - `sensor.py` creates sensors from coordinator data and must not call the API directly.
 - `services.py` exposes the `fetch_data` service for on-demand API queries.
+- `scripts/probe_rte.py` can be used with live credentials to inspect endpoint
+  responses and design or verify parsers.
+
+---
+
+## Adding or Changing an Endpoint
+
+1. Inspect the live response with the debug script:
+   ```bash
+   RTE_CLIENT_ID=<id> RTE_CLIENT_SECRET=<secret> uv run python scripts/probe_rte.py
+   ```
+2. If the response contains a scalar value you want to expose, add a parser in
+   `parsers.py` that returns `float | str | None`.
+3. Register the endpoint in `endpoints.py` by adding an `RTEEndpoint` entry.
+   Link it to the parser through one or more `RTESensorDefinition` entries.
+4. Prefer reusing existing parser helpers (`_last_numeric_value`,
+   `_sum_nested_values`, `_sum_last_numeric_values`) before writing a new one.
+5. Update `README.md` (supported endpoints table) and `CHANGELOG.md`.
+6. Run the checks from the Testing & Quality section.
+
+### When an endpoint is not subscribed
+
+If the RTE application is not subscribed to an endpoint, the API returns `403`.
+Do not remove the endpoint declaration. Instead:
+- keep the endpoint in `endpoints.py`;
+- use `_data_available` as a safe placeholder parser if the response structure is
+  unknown;
+- document the limitation in `README.md` under **Known limitations**.
 
 ---
 
@@ -117,6 +154,7 @@ uv run python3 -m py_compile <modified_files>
 □ Did I remove all unused code and trailing whitespace?
 □ Are credentials or secrets never logged or hard-coded?
 □ Have I updated README.md and CHANGELOG.md?
+□ If I added or changed an endpoint, did I update endpoints.py and verify the parser?
 ```
 
 If the answer to any of these questions is **no**, revise before submitting.

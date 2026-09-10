@@ -6,7 +6,7 @@ fetch_data:
       name: Endpoint
       description: RTE Data API endpoint path after /open_api/, e.g. wholesale_market/v3/france_power_exchanges.
       required: true
-      example: wholesale_market/v3/france_power_exchanges
+      example: wholesale_market/v2/france_power_exchanges
       selector:
         text:
     params:

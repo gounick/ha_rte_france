@@ -107,7 +107,10 @@ class RTEDataAPI:
 
         async with self._session.get(
             url,
-            headers={"Authorization": f"Bearer {self._access_token}"},
+            headers={
+                "Authorization": f"Bearer {self._access_token}",
+                "Accept": "application/json",
+            },
             params=params,
         ) as resp:
             try:
@@ -117,84 +120,3 @@ class RTEDataAPI:
                     f"RTE API request failed: {err.status} {err.message}"
                 ) from err
             return await resp.json()
-
-    def _api_format(self, dt: datetime) -> str:
-        """Return a datetime formatted for the RTE API."""
-        return dt.isoformat()
-
-    async def fetch_france_power_exchanges(self) -> dict[str, Any]:
-        """Fetch France power exchange prices and volumes.
-
-        :return: Parsed JSON response from the API.
-        :rtype: dict[str, Any]
-        """
-        today = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-        start = today - timedelta(days=1)
-        end = today + timedelta(days=1)
-        return await self.fetch(
-            "wholesale_market/v2/france_power_exchanges",
-            {
-                "start_date": self._api_format(start),
-                "end_date": self._api_format(end),
-            },
-        )
-
-    def _midnight(self, offset: timedelta = timedelta()) -> datetime:
-        """Return a UTC midnight datetime with an optional offset."""
-        today = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-        return today + offset
-
-    async def fetch_actual_generation(self) -> dict[str, Any]:
-        """Fetch actual generation per production type.
-
-        :return: Parsed JSON response from the API.
-        :rtype: dict[str, Any]
-        """
-        # This resource accepts optional date filters; omitting them returns
-        # the API's default window and avoids timezone/range validation errors.
-        return await self.fetch(
-            "actual_generation/v1/actual_generations_per_production_type"
-        )
-
-    async def fetch_generation_forecast(self) -> dict[str, Any]:
-        """Fetch generation forecasts.
-
-        :return: Parsed JSON response from the API.
-        :rtype: dict[str, Any]
-        """
-        start = self._midnight()
-        end = self._midnight(timedelta(days=1))
-        return await self.fetch(
-            "generation_forecast/v2/forecasts",
-            {
-                "start_date": self._api_format(start),
-                "end_date": self._api_format(end),
-            },
-        )
-
-    async def fetch_consumption(self) -> dict[str, Any]:
-        """Fetch short-term consumption realised data.
-
-        :return: Parsed JSON response from the API.
-        :rtype: dict[str, Any]
-        """
-        start = self._midnight(timedelta(days=-1))
-        end = self._midnight()
-        return await self.fetch(
-            "consumption/v1/short_term",
-            {
-                "start_date": self._api_format(start),
-                "end_date": self._api_format(end),
-                "type": "REALISED",
-            },
-        )
-
-    async def fetch_physical_flows(self) -> dict[str, Any]:
-        """Fetch physical cross-border flows.
-
-        :return: Parsed JSON response from the API.
-        :rtype: dict[str, Any]
-        """
-        # The physical_flows resource can be queried without date filters;
-        # the API returns the default available window.
-        return await self.fetch("physical_flow/v1/physical_flows")

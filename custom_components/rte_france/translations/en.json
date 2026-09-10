@@ -8,12 +8,30 @@
         },
         "description": "Enter your RTE Data API credentials. Create them and subscribe to the required APIs on the RTE Data portal.",
         "title": "RTE France"
+      },
+      "endpoints": {
+        "data": {
+          "enabled_endpoints": "Enabled endpoints"
+        },
+        "description": "Select the RTE Data API endpoints to poll. Only endpoints subscribed to by your RTE application will work.",
+        "title": "Endpoints"
       }
     },
     "error": {
       "cannot_connect": "Failed to connect to RTE API. Check your credentials and subscriptions.",
       "invalid_auth": "Invalid RTE API credentials.",
       "unknown": "Unexpected error."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "enabled_endpoints": "Enabled endpoints"
+        },
+        "description": "Select the RTE Data API endpoints to poll. Only endpoints subscribed to by your RTE application will work.",
+        "title": "Endpoints"
+      }
     }
   }
 }

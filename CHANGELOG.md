@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Endpoint registry (`endpoints.py`) to declare RTE Data API resources in one place.
+- Options flow to enable or disable individual RTE Data API endpoints after setup.
+- Endpoint selection step in the config flow.
+- Additional endpoints: Ecowatt, Tempo, NTC, Cross Zonal Capacity, Exchange Schedule, Losses, Consolidated Consumption, Generation Installed Capacities, Signal, Balancing Energy, Balancing Capacity, BRE Imbalance Reconstitution, Balancing Imbalances Account, BRE Referential, BRE Temporal Reconciliation, Certified Capacities Registry, Certified Capacities Registry V2, Certification Obligation Parameter.
+- Debug script `scripts/probe_rte.py` to inspect endpoint responses.
+
+### Changed
+
+- Refactored sensors to be generated from endpoint descriptors instead of hard-coded classes.
+- `RTEDataUpdateCoordinator` now accepts an `RTEEndpoint` descriptor.
+- `RTEDataAPI` keeps only generic OAuth2 and `fetch` methods; endpoint-specific logic moved to descriptors.
+- `RTEDataAPI.fetch` now sends `Accept: application/json`.
+- Sensor unique IDs now include the endpoint key so multiple sensors can share a single endpoint. Existing entities will be recreated on upgrade.
+
+### Removed
+
+- Hard-coded per-category sensor classes and `RTEDataAPI` endpoint methods (replaced by endpoint descriptors).
+
+### Fixed
+
+- Fixed `physical_flow_net` and `ntc_last` parsers to handle RTE's nested `values` structure.
+- Fixed `tempo_today_color` parser to handle a single calendar object returned by the API.
+
+## [0.1.0]
+
+### Added
+
 - Initial release of the RTE France custom integration.
 - OAuth2 client-credentials authentication for the RTE Data API.
 - Generic `fetch_data` service to query any RTE Data API endpoint.

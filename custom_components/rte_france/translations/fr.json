@@ -8,12 +8,30 @@
         },
         "description": "Saisissez vos identifiants d'API RTE Data. Créez-les et abonnez-vous aux API requises sur le portail RTE Data.",
         "title": "RTE France"
+      },
+      "endpoints": {
+        "data": {
+          "enabled_endpoints": "Points de terminaison activés"
+        },
+        "description": "Sélectionnez les points de terminaison de l'API RTE Data à interroger. Seuls ceux auxquels votre application RTE est abonnée fonctionneront.",
+        "title": "Points de terminaison"
       }
     },
     "error": {
       "cannot_connect": "Échec de connexion à l'API RTE. Vérifiez vos identifiants et abonnements.",
       "invalid_auth": "Identifiants d'API RTE invalides.",
       "unknown": "Erreur inattendue."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "enabled_endpoints": "Points de terminaison activés"
+        },
+        "description": "Sélectionnez les points de terminaison de l'API RTE Data à interroger. Seuls ceux auxquels votre application RTE est abonnée fonctionneront.",
+        "title": "Points de terminaison"
+      }
     }
   }
 }
