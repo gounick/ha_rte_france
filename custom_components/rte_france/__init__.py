@@ -8,7 +8,6 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from .api import RTEDataAPI, RTEDataAPIError
 from .const import CONF_CLIENT_ID, CONF_CLIENT_SECRET, DOMAIN
@@ -54,7 +53,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = RTEDataUpdateCoordinator(hass, api, name, update_method)
         try:
             await coordinator.async_config_entry_first_refresh()
-        except UpdateFailed as err:
+        except ConfigEntryNotReady as err:
             _LOGGER.warning(
                 "RTE France '%s' API is not available for this application: %s",
                 name,

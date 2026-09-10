@@ -38,3 +38,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `services.py` now uses `SupportsResponse.ONLY` from `homeassistant.core`, fixing an `ImportError` that prevented the config flow from loading.
 - `api.py` now uses the correct RTE Data API versions and query parameters (`wholesale_market/v2`, `generation_forecast/v2/forecasts`, `type=REALISED` for consumption, realistic date ranges) and exposes `authenticate()` to validate credentials without fetching data during setup.
 - `async_setup_entry` now probes each API category during setup and only creates sensors for the endpoints the RTE application is allowed to access, preventing a single `403 Forbidden` from failing the whole integration.
+- The API probe now catches `ConfigEntryNotReady` (raised by `DataUpdateCoordinator.first_refresh`) for each endpoint instead of `UpdateFailed`.
