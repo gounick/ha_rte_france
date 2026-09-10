@@ -4,8 +4,12 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse
-from homeassistant.helpers.config_validation import ServiceResponseSchema
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
 
 from .api import RTEDataAPI
 from .const import DOMAIN
@@ -59,5 +63,5 @@ def async_setup_services(hass: HomeAssistant, api: RTEDataAPI) -> None:
         SERVICE_FETCH_DATA,
         handle_fetch_data,
         schema=SERVICE_FETCH_DATA_SCHEMA,
-        supports_response=ServiceResponseSchema.RESPONSE_ONLY,
+        supports_response=SupportsResponse.ONLY,
     )

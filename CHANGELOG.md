@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hassfest validation workflow.
 - Brand assets (`icon.png` / `logo.png`) for HACS under `custom_components/rte_france/brand/`.
 - HACS validation workflow and `hacs.json`.
-- hassfest validation workflow.
 - MIT `LICENSE` file.
 - `FUNDING.yaml` file.
 - `integration_type` set to `service` in `manifest.json`.
@@ -36,3 +35,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `async_setup_entry` now creates one `RTEDataUpdateCoordinator` per API category, matching the coordinator constructor signature and fixing setup errors.
+- `services.py` now uses `SupportsResponse.ONLY` from `homeassistant.core`, fixing an `ImportError` that prevented the config flow from loading.
