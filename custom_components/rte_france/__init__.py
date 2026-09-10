@@ -2,13 +2,14 @@
 
 import logging
 
+import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import RTEDataAPI
+from .api import RTEDataAPI, RTEDataAPIError
 from .const import CONF_CLIENT_ID, CONF_CLIENT_SECRET, DOMAIN
 from .coordinator import RTEDataUpdateCoordinator
 from .services import async_setup_services
@@ -35,8 +36,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api = RTEDataAPI(client_id, client_secret, session)
 
     try:
-        await api.fetch_france_power_exchanges()
-    except Exception as err:
+        await api.authenticate()
+    except (RTEDataAPIError, aiohttp.ClientError) as err:
         raise ConfigEntryNotReady() from err
 
     coordinators = {

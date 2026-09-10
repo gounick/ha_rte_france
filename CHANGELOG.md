@@ -36,3 +36,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `async_setup_entry` now creates one `RTEDataUpdateCoordinator` per API category, matching the coordinator constructor signature and fixing setup errors.
 - `services.py` now uses `SupportsResponse.ONLY` from `homeassistant.core`, fixing an `ImportError` that prevented the config flow from loading.
+- `api.py` now uses the correct RTE Data API versions and query parameters (`wholesale_market/v2`, `generation_forecast/v2/forecasts`, `type=REALISED` for consumption, realistic date ranges) and exposes `authenticate()` to validate credentials without fetching data during setup.

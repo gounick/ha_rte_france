@@ -45,7 +45,7 @@ class RTEFranceConfigFlow(ConfigFlow, domain=DOMAIN):
             session = aiohttp.ClientSession()
             try:
                 api = RTEDataAPI(client_id, client_secret, session)
-                await api.fetch_france_power_exchanges()
+                await api.authenticate()
             except aiohttp.ClientError:
                 errors["base"] = "cannot_connect"
             except RTEDataAPIError:

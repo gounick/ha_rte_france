@@ -44,19 +44,32 @@ class RTEDataAPI:
         self._access_token: str | None = None
         self._token_expires_at: datetime | None = None
 
+    async def authenticate(self) -> None:
+        """Validate credentials by fetching an OAuth2 token.
+
+        :raises RTEDataAPIError: If the credentials are rejected.
+        :raises aiohttp.ClientError: If the network request fails.
+        """
+        await self._authenticate()
+
     async def _authenticate(self) -> None:
         """Request or refresh the OAuth2 access token."""
         credentials = base64.b64encode(
             f"{self._client_id}:{self._client_secret}".encode()
         ).decode()
 
-        async with self._session.post(
-            self.OAUTH_URL,
-            headers={"Authorization": f"Basic {credentials}"},
-            data={"grant_type": "client_credentials"},
-        ) as resp:
-            resp.raise_for_status()
-            token_data = await resp.json()
+        try:
+            async with self._session.post(
+                self.OAUTH_URL,
+                headers={"Authorization": f"Basic {credentials}"},
+                data={"grant_type": "client_credentials"},
+            ) as resp:
+                resp.raise_for_status()
+                token_data = await resp.json()
+        except aiohttp.ClientResponseError as err:
+            raise RTEDataAPIError(
+                f"RTE OAuth authentication failed: {err.status} {err.message}"
+            ) from err
 
         self._access_token = token_data["access_token"]
         expires_in = token_data.get("expires_in", 3600)
@@ -79,7 +92,7 @@ class RTEDataAPI:
         """Fetch data from an RTE Data API endpoint.
 
         :param endpoint: RTE API endpoint path after ``/open_api/``,
-            e.g. ``wholesale_market/v3/france_power_exchanges``.
+            e.g. ``wholesale_market/v2/france_power_exchanges``.
         :type endpoint: str
         :param params: Optional query parameters.
         :type params: dict[str, Any] | None
@@ -105,21 +118,21 @@ class RTEDataAPI:
                 ) from err
             return await resp.json()
 
+    def _now(self) -> datetime:
+        """Return the current UTC time without microseconds."""
+        return datetime.now(UTC).replace(microsecond=0)
+
+    def _api_format(self, dt: datetime) -> str:
+        """Return a datetime formatted for the RTE API."""
+        return dt.isoformat()
+
     async def fetch_france_power_exchanges(self) -> dict[str, Any]:
         """Fetch France power exchange prices and volumes.
 
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        today = datetime.now(UTC).date()
-        tomorrow = today + timedelta(days=1)
-        return await self.fetch(
-            "wholesale_market/v3/france_power_exchanges",
-            {
-                "start_date": f"{today.isoformat()}T00:00:00+00:00",
-                "end_date": f"{tomorrow.isoformat()}T23:59:59+00:00",
-            },
-        )
+        return await self.fetch("wholesale_market/v2/france_power_exchanges")
 
     async def fetch_actual_generation(self) -> dict[str, Any]:
         """Fetch actual generation per production type.
@@ -127,13 +140,13 @@ class RTEDataAPI:
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        today = datetime.now(UTC).date()
-        tomorrow = today + timedelta(days=1)
+        now = self._now()
+        start = now - timedelta(days=1)
         return await self.fetch(
             "actual_generation/v1/actual_generations_per_production_type",
             {
-                "start_date": f"{today.isoformat()}T00:00:00+00:00",
-                "end_date": f"{tomorrow.isoformat()}T23:59:59+00:00",
+                "start_date": self._api_format(start),
+                "end_date": self._api_format(now),
             },
         )
 
@@ -143,29 +156,30 @@ class RTEDataAPI:
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        today = datetime.now(UTC).date()
-        tomorrow = today + timedelta(days=1)
+        now = self._now()
+        end = now + timedelta(days=1)
         return await self.fetch(
-            "generation_forecast/v1/generation_forecasts",
+            "generation_forecast/v2/forecasts",
             {
-                "start_date": f"{today.isoformat()}T00:00:00+00:00",
-                "end_date": f"{tomorrow.isoformat()}T23:59:59+00:00",
+                "start_date": self._api_format(now),
+                "end_date": self._api_format(end),
             },
         )
 
     async def fetch_consumption(self) -> dict[str, Any]:
-        """Fetch short-term consumption forecast.
+        """Fetch short-term consumption realised data.
 
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        today = datetime.now(UTC).date()
-        tomorrow = today + timedelta(days=1)
+        now = self._now()
+        start = now - timedelta(days=1)
         return await self.fetch(
             "consumption/v1/short_term",
             {
-                "start_date": f"{today.isoformat()}T00:00:00+00:00",
-                "end_date": f"{tomorrow.isoformat()}T23:59:59+00:00",
+                "start_date": self._api_format(start),
+                "end_date": self._api_format(now),
+                "type": "REALISED",
             },
         )
 
@@ -175,12 +189,12 @@ class RTEDataAPI:
         :return: Parsed JSON response from the API.
         :rtype: dict[str, Any]
         """
-        today = datetime.now(UTC).date()
-        tomorrow = today + timedelta(days=1)
+        now = self._now()
+        start = now - timedelta(days=1)
         return await self.fetch(
             "physical_flow/v1/physical_flows",
             {
-                "start_date": f"{today.isoformat()}T00:00:00+00:00",
-                "end_date": f"{tomorrow.isoformat()}T23:59:59+00:00",
+                "start_date": self._api_format(start),
+                "end_date": self._api_format(now),
             },
         )
